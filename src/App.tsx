@@ -29,7 +29,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// Get the base URL from the import.meta object, which comes from Vite
+// Get the base URL dynamically to support both development and production
 const baseUrl = import.meta.env.BASE_URL || '/';
 
 const AppRoutes = () => {

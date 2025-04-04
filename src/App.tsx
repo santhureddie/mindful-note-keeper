@@ -29,6 +29,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Get the base URL from the import.meta object, which comes from Vite
+const baseUrl = import.meta.env.BASE_URL || '/';
+
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
   
@@ -53,7 +56,7 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter basename={baseUrl}>
           <AppRoutes />
         </BrowserRouter>
       </AuthProvider>

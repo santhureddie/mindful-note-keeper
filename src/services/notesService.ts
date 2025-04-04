@@ -1,6 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from '@/hooks/use-toast';
 
 export interface Note {
   id: string;
@@ -12,169 +14,224 @@ export interface Note {
   color?: string;
 }
 
-// Mock initial notes
-const MOCK_NOTES: Note[] = [
-  {
-    id: '1',
-    userId: 'user-1',
-    title: 'Welcome to MindfulNotes',
-    content: 'This is your first note! Start writing down your thoughts, ideas, and reminders. Click on a note to edit it, or create a new one with the "+" button.',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    color: '#9b87f5'
-  },
-  {
-    id: '2',
-    userId: 'user-1',
-    title: 'Tips for effective note-taking',
-    content: '1. Keep notes brief and to the point\n2. Use bullet points for clarity\n3. Review and organize notes regularly\n4. Tag important notes for quick reference',
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000).toISOString(),
-    color: '#0EA5E9'
-  },
-  {
-    id: '3',
-    userId: 'user-1',
-    title: 'Meeting with design team',
-    content: 'Discuss new UI components\nReview color schemes\nPlan next sprint tasks\nSchedule follow-up for next week',
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-    updatedAt: new Date(Date.now() - 172800000).toISOString(),
-    color: '#14b8a6'
-  }
-];
-
 export const useNotes = () => {
   const { user } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Get all notes for the current user
   const fetchNotes = async () => {
+    if (!user) return;
+    
     setIsLoading(true);
     setError(null);
+    
     try {
-      // Mock API call - would be replaced with real API call
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .order('updated_at', { ascending: false });
       
-      // For demo, get notes from localStorage or use mock data
-      const storedNotes = localStorage.getItem('notes');
-      let userNotes = storedNotes ? JSON.parse(storedNotes) : MOCK_NOTES;
-      
-      // Filter notes for current user
-      if (user) {
-        userNotes = userNotes.filter((note: Note) => note.userId === user.id);
+      if (error) {
+        throw error;
       }
       
-      setNotes(userNotes);
-    } catch (err) {
+      // Transform the data to match our Note interface
+      const transformedNotes = data.map((note: any) => ({
+        id: note.id,
+        userId: note.user_id,
+        title: note.title,
+        content: note.content,
+        createdAt: note.created_at,
+        updatedAt: note.updated_at,
+        color: note.color
+      }));
+      
+      setNotes(transformedNotes);
+    } catch (err: any) {
       console.error('Failed to fetch notes', err);
       setError('Failed to load notes. Please try again.');
+      toast({
+        title: "Error loading notes",
+        description: err.message || "Failed to load notes",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   // Get a single note by ID
-  const getNote = (id: string) => {
-    const allNotes = getAllStoredNotes();
-    return allNotes.find(note => note.id === id);
+  const getNote = async (id: string) => {
+    if (!user) return null;
+    
+    try {
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (!data) return null;
+      
+      return {
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        content: data.content,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        color: data.color
+      };
+    } catch (err) {
+      console.error('Failed to fetch note', err);
+      return null;
+    }
   };
 
   // Create a new note
   const createNote = async (title: string, content: string, color?: string) => {
     if (!user) return null;
     
-    const now = new Date().toISOString();
-    const newNote: Note = {
-      id: `note-${Date.now()}`,
-      userId: user.id,
-      title,
-      content,
-      createdAt: now,
-      updatedAt: now,
-      color: color || getNoteColor()
-    };
-
     try {
-      // Mock API call - would be replaced with real API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const { data, error } = await supabase
+        .from('notes')
+        .insert([
+          { 
+            title, 
+            content, 
+            user_id: user.id,
+            color 
+          }
+        ])
+        .select('*')
+        .single();
       
-      const allNotes = getAllStoredNotes();
-      const updatedNotes = [newNote, ...allNotes];
-      localStorage.setItem('notes', JSON.stringify(updatedNotes));
+      if (error) {
+        throw error;
+      }
       
-      // Update state with new notes for current user
+      const newNote = {
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        content: data.content,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        color: data.color
+      };
+      
       setNotes(prevNotes => [newNote, ...prevNotes]);
+      
+      toast({
+        title: "Note created",
+        description: "Your note was created successfully",
+      });
+      
       return newNote;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to create note', err);
-      setError('Failed to create note. Please try again.');
+      toast({
+        title: "Failed to create note",
+        description: err.message || "Please try again",
+        variant: "destructive",
+      });
       return null;
     }
   };
 
   // Update an existing note
   const updateNote = async (id: string, updates: Partial<Note>) => {
+    if (!user) return null;
+    
     try {
-      // Mock API call - would be replaced with real API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Convert to Supabase column names
+      const supabaseUpdates: any = {};
+      if (updates.title !== undefined) supabaseUpdates.title = updates.title;
+      if (updates.content !== undefined) supabaseUpdates.content = updates.content;
+      if (updates.color !== undefined) supabaseUpdates.color = updates.color;
       
-      const allNotes = getAllStoredNotes();
-      const noteIndex = allNotes.findIndex(note => note.id === id);
+      const { data, error } = await supabase
+        .from('notes')
+        .update(supabaseUpdates)
+        .eq('id', id)
+        .select('*')
+        .single();
       
-      if (noteIndex === -1) {
-        throw new Error('Note not found');
+      if (error) {
+        throw error;
       }
       
       const updatedNote = {
-        ...allNotes[noteIndex],
-        ...updates,
-        updatedAt: new Date().toISOString()
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        content: data.content,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        color: data.color
       };
       
-      allNotes[noteIndex] = updatedNote;
-      localStorage.setItem('notes', JSON.stringify(allNotes));
-      
-      // Update state with updated notes for current user
+      // Update local state
       setNotes(prevNotes => 
         prevNotes.map(note => note.id === id ? updatedNote : note)
       );
       
+      toast({
+        title: "Note updated",
+        description: "Your note was updated successfully",
+      });
+      
       return updatedNote;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to update note', err);
-      setError('Failed to update note. Please try again.');
+      toast({
+        title: "Failed to update note",
+        description: err.message || "Please try again",
+        variant: "destructive",
+      });
       return null;
     }
   };
 
   // Delete a note
   const deleteNote = async (id: string) => {
+    if (!user) return false;
+    
     try {
-      // Mock API call - would be replaced with real API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const { error } = await supabase
+        .from('notes')
+        .delete()
+        .eq('id', id);
       
-      const allNotes = getAllStoredNotes();
-      const filteredNotes = allNotes.filter(note => note.id !== id);
+      if (error) {
+        throw error;
+      }
       
-      localStorage.setItem('notes', JSON.stringify(filteredNotes));
-      
-      // Update state with filtered notes for current user
+      // Update local state
       setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
       
+      toast({
+        title: "Note deleted",
+        description: "Your note was deleted successfully",
+      });
+      
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to delete note', err);
-      setError('Failed to delete note. Please try again.');
+      toast({
+        title: "Failed to delete note",
+        description: err.message || "Please try again",
+        variant: "destructive",
+      });
       return false;
     }
-  };
-
-  // Helper function to get all notes from localStorage
-  const getAllStoredNotes = (): Note[] => {
-    const storedNotes = localStorage.getItem('notes');
-    return storedNotes ? JSON.parse(storedNotes) : MOCK_NOTES;
   };
 
   // Helper function to generate random note colors
@@ -183,7 +240,7 @@ export const useNotes = () => {
     return colors[Math.floor(Math.random() * colors.length)];
   };
 
-  // Load notes on mount and when user changes
+  // Load notes when user changes
   useEffect(() => {
     if (user) {
       fetchNotes();

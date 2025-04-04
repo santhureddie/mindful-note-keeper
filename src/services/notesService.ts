@@ -14,6 +14,17 @@ export interface Note {
   color?: string;
 }
 
+// Define the shapes of our database rows
+interface NoteRow {
+  id: string;
+  user_id: string;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  color?: string;
+}
+
 export const useNotes = () => {
   const { user } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
@@ -29,7 +40,9 @@ export const useNotes = () => {
     setError(null);
     
     try {
-      const { data, error } = await supabase
+      // We use any here to bypass TypeScript's type checking for Supabase
+      // since the notes table is not in the Supabase TypeScript definition
+      const { data, error } = await (supabase as any)
         .from('notes')
         .select('*')
         .order('updated_at', { ascending: false });
@@ -38,8 +51,8 @@ export const useNotes = () => {
         throw error;
       }
       
-      // Transform the data to match our Note interface
-      const transformedNotes = data.map((note: any) => ({
+      // Transform the data from database format to our app's format
+      const transformedNotes = (data as NoteRow[]).map((note) => ({
         id: note.id,
         userId: note.user_id,
         title: note.title,
@@ -68,7 +81,8 @@ export const useNotes = () => {
     if (!user) return null;
     
     try {
-      const { data, error } = await supabase
+      // We use any here to bypass TypeScript's type checking
+      const { data, error } = await (supabase as any)
         .from('notes')
         .select('*')
         .eq('id', id)
@@ -80,14 +94,16 @@ export const useNotes = () => {
       
       if (!data) return null;
       
+      const note = data as NoteRow;
+      
       return {
-        id: data.id,
-        userId: data.user_id,
-        title: data.title,
-        content: data.content,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-        color: data.color
+        id: note.id,
+        userId: note.user_id,
+        title: note.title,
+        content: note.content,
+        createdAt: note.created_at,
+        updatedAt: note.updated_at,
+        color: note.color
       };
     } catch (err) {
       console.error('Failed to fetch note', err);
@@ -100,7 +116,8 @@ export const useNotes = () => {
     if (!user) return null;
     
     try {
-      const { data, error } = await supabase
+      // Create the note in the database
+      const { data, error } = await (supabase as any)
         .from('notes')
         .insert([
           { 
@@ -117,24 +134,26 @@ export const useNotes = () => {
         throw error;
       }
       
-      const newNote = {
-        id: data.id,
-        userId: data.user_id,
-        title: data.title,
-        content: data.content,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-        color: data.color
+      const newNote = data as NoteRow;
+      
+      const transformedNote: Note = {
+        id: newNote.id,
+        userId: newNote.user_id,
+        title: newNote.title,
+        content: newNote.content,
+        createdAt: newNote.created_at,
+        updatedAt: newNote.updated_at,
+        color: newNote.color
       };
       
-      setNotes(prevNotes => [newNote, ...prevNotes]);
+      setNotes(prevNotes => [transformedNote, ...prevNotes]);
       
       toast({
         title: "Note created",
         description: "Your note was created successfully",
       });
       
-      return newNote;
+      return transformedNote;
     } catch (err: any) {
       console.error('Failed to create note', err);
       toast({
@@ -151,13 +170,14 @@ export const useNotes = () => {
     if (!user) return null;
     
     try {
-      // Convert to Supabase column names
-      const supabaseUpdates: any = {};
+      // Convert to database column names
+      const supabaseUpdates: Partial<NoteRow> = {};
       if (updates.title !== undefined) supabaseUpdates.title = updates.title;
       if (updates.content !== undefined) supabaseUpdates.content = updates.content;
       if (updates.color !== undefined) supabaseUpdates.color = updates.color;
       
-      const { data, error } = await supabase
+      // Update the note in the database
+      const { data, error } = await (supabase as any)
         .from('notes')
         .update(supabaseUpdates)
         .eq('id', id)
@@ -168,19 +188,21 @@ export const useNotes = () => {
         throw error;
       }
       
-      const updatedNote = {
-        id: data.id,
-        userId: data.user_id,
-        title: data.title,
-        content: data.content,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-        color: data.color
+      const updatedNote = data as NoteRow;
+      
+      const transformedNote: Note = {
+        id: updatedNote.id,
+        userId: updatedNote.user_id,
+        title: updatedNote.title,
+        content: updatedNote.content,
+        createdAt: updatedNote.created_at,
+        updatedAt: updatedNote.updated_at,
+        color: updatedNote.color
       };
       
       // Update local state
       setNotes(prevNotes => 
-        prevNotes.map(note => note.id === id ? updatedNote : note)
+        prevNotes.map(note => note.id === id ? transformedNote : note)
       );
       
       toast({
@@ -188,7 +210,7 @@ export const useNotes = () => {
         description: "Your note was updated successfully",
       });
       
-      return updatedNote;
+      return transformedNote;
     } catch (err: any) {
       console.error('Failed to update note', err);
       toast({
@@ -205,7 +227,8 @@ export const useNotes = () => {
     if (!user) return false;
     
     try {
-      const { error } = await supabase
+      // Delete the note from the database
+      const { error } = await (supabase as any)
         .from('notes')
         .delete()
         .eq('id', id);

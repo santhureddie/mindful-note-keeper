@@ -19,6 +19,9 @@ interface HeaderProps {
 const Header = ({ title = "MindfulNotes" }: HeaderProps) => {
   const { isAuthenticated, user, logout } = useAuth();
 
+  // Get user's name from metadata or use email as fallback
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+
   return (
     <header className="border-b py-4">
       <div className="container mx-auto px-4 flex justify-between items-center">
@@ -29,7 +32,7 @@ const Header = ({ title = "MindfulNotes" }: HeaderProps) => {
         {isAuthenticated ? (
           <div className="flex items-center gap-4">
             <span className="hidden md:inline text-sm text-muted-foreground">
-              Hello, {user?.name}
+              Hello, {userName}
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

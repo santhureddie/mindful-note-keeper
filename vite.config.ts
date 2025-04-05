@@ -26,5 +26,18 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(__dirname, "./src"),
       },
     },
+    build: {
+      // Ensure no build failures due to large chunks
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Split code into more manageable chunks
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+            ui: ['@radix-ui/react-toast', '@radix-ui/react-dialog']
+          }
+        }
+      }
+    }
   };
 });

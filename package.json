@@ -79,7 +79,8 @@
     "to": "^0.2.9",
     "vaul": "^0.9.3",
     "without": "^1.2.3",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "hiredis": "^0.7.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

@@ -30,7 +30,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 // Get the base URL dynamically to support both development and production
-const baseUrl = import.meta.env.BASE_URL || '/';
+const baseUrl = import.meta.env.BASE_URL;
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();

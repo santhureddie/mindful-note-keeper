@@ -6,7 +6,6 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Get base path from environment variable or use repository name for production
   const basePath = process.env.VITE_BASE_PATH || (mode === 'production' ? '/mindful-note-keeper/' : '/');
   
   return {
@@ -14,12 +13,10 @@ export default defineConfig(({ mode }) => {
       host: "::",
       port: 8080,
     },
-    // Use the determined base path
     base: basePath,
     plugins: [
       react(),
-      mode === 'development' &&
-      componentTagger(),
+      mode === 'development' && componentTagger(),
     ].filter(Boolean),
     resolve: {
       alias: {
@@ -27,9 +24,6 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      // Ensure no build failures due to large chunks
-      chunkSizeWarningLimit: 1000,
-      // Optimize for GitHub Pages
       outDir: 'dist',
       assetsDir: 'assets',
       sourcemap: false,
@@ -37,7 +31,6 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            // Split code into more manageable chunks
             vendor: ['react', 'react-dom'],
             router: ['react-router-dom'],
             ui: ['@radix-ui/react-toast', '@radix-ui/react-dialog'],

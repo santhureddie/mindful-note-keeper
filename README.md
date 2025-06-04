@@ -1,73 +1,97 @@
-# Welcome to your Lovable project
+# 📝 Mindful Note Keeper
+Mindful Note Keeper is a modern, minimalist note-taking web application designed to help users capture thoughts, ideas, and tasks with ease. Built with a focus on simplicity and responsiveness, it ensures a seamless user experience across devices.
 
-## Project info
+## 🚀 Live Demo
+Experience the application live at: https://santhureddie.github.io/mindful-note-keeper/
 
-**URL**: https://lovable.dev/projects/992d6b2a-d136-4a45-8dd2-586e7df860e9
+## 🛠️ Technologies Used
+- **React:** Front-end library for building user interfaces.
+- **TypeScript:** Superset of JavaScript that adds static typing.
+- **Vite:** Next-generation frontend tooling for fast development.
+- **Tailwind CSS:** Utility-first CSS framework for rapid UI development.
+- **Supabase:** Backend-as-a-Service providing authentication and database services.
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/992d6b2a-d136-4a45-8dd2-586e7df860e9) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## 📁 Project Structure
 ```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+mindful-note-keeper/
+├── .github/             # GitHub workflows
+├── public/              # Static assets
+├── src/                 # Source code
+├── supabase/            # Supabase configuration and migrations
+├── .gitignore           # Git ignore rules
+├── README.md            # Project documentation
+├── bun.lockb            # Bun package manager lock file
+├── components.json      # Component configuration
+├── eslint.config.js     # ESLint configuration
+├── index.html           # Entry HTML file
+├── package-lock.json    # NPM lock file
+├── package.json         # Project metadata and dependencies
+├── postcss.config.js    # PostCSS configuration
+├── tailwind.config.ts   # Tailwind CSS configuration
+├── tsconfig.app.json    # TypeScript app configuration
+├── tsconfig.json        # Base TypeScript configuration
+├── tsconfig.node.json   # TypeScript Node.js configuration
+└── vite.config.ts       # Vite configuration
+```
+## ⚙️ Getting Started
+To set up and run the project locally:
 
-**Use GitHub Codespaces**
+### Prerequisites
+- **Node.js:** Ensure you have Node.js installed. Download it from https://nodejs.org/.
+- **Bun:** This project uses Bun as the package manager. Install it from https://bun.sh/.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Installation
+#### Clone the repository:
+```
+git clone https://github.com/santhureddie/mindful-note-keeper.git
+cd mindful-note-keeper
+```
+#### Install dependencies:
+```
+bun install
+```
+#### Set up environment variables:
 
-## What technologies are used for this project?
+Create a .env file in the root directory and add the necessary environment variables. 
 
-This project is built with:
+Refer to the Supabase documentation for required variables.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+#### Start the development server:
+```
+bun run dev
+```
+The application will be available at http://localhost:5173/ by default.
 
-## How can I deploy this project?
+## 🧩 Features
+- **User Authentication:** Secure login and registration using Supabase.
+- **Responsive Design:** Optimized for various devices and screen sizes.
+- **Real-time Updates:** Live note synchronization across sessions.
+- **Minimalist UI:** Clean and distraction-free interface for focused note-taking.
+- **Dark Mode:** Toggle between light and dark themes for comfortable viewing.
 
-Simply open [Lovable](https://lovable.dev/projects/992d6b2a-d136-4a45-8dd2-586e7df860e9) and click on Share -> Publish.
+## 📦 Deployment
+The application is deployed using GitHub Pages. To deploy your own version:
 
-## Can I connect a custom domain to my Lovable project?
+### Build the application:
+```
+bun run build
+```
+### Deploy to GitHub Pages:
 
-Yes it is!
+Ensure the homepage field in your package.json is set to your GitHub Pages URL, e.g., https://yourusername.github.io/mindful-note-keeper/.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Then, push the dist folder to the gh-pages branch:
+```
+git subtree push --prefix dist origin gh-pages
+```
+Note: For custom domain support, consider deploying with platforms like Netlify or Vercel.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 📄 License
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT)
+
+## 👨‍💻 Author
+ Santhosh Kumar Reddy Jampana
+ 
+ [GitHub Profile](https://github.com/santhureddie)

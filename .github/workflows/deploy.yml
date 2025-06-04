@@ -11,6 +11,10 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -28,18 +32,60 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-          
-      - name: Install development dependencies
-        run: npm install --save-dev @types/node
+
+      - name: Clean npm cache
+        run: npm cache clean --force
 
       - name: Remove problematic packages before install
         run: |
           if grep -q "hiredis" package.json; then
             npm uninstall hiredis --no-save
           fi
+          if grep -q "deployment" package.json; then
+            npm uninstall deployment --no-save
+          fi
+          if grep -q "directly" package.json; then
+            npm uninstall directly --no-save
+          fi
+          if grep -q "files" package.json; then
+            npm uninstall files --no-save
+          fi
+          if grep -q "for" package.json; then
+            npm uninstall for --no-save
+          fi
+          if grep -q "implement" package.json; then
+            npm uninstall implement --no-save
+          fi
+          if grep -q "instead" package.json; then
+            npm uninstall instead --no-save
+          fi
+          if grep -q "of" package.json; then
+            npm uninstall of --no-save
+          fi
+          if grep -q "other" package.json; then
+            npm uninstall other --no-save
+          fi
+          if grep -q "package.json" package.json; then
+            npm uninstall package.json --no-save
+          fi
+          if grep -q "required" package.json; then
+            npm uninstall required --no-save
+          fi
+          if grep -q "that" package.json; then
+            npm uninstall that --no-save
+          fi
+          if grep -q "to" package.json; then
+            npm uninstall to --no-save
+          fi
+          if grep -q "without" package.json; then
+            npm uninstall without --no-save
+          fi
+
+      - name: Install development dependencies
+        run: npm install --save-dev @types/node
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps --no-optional
+        run: npm ci --legacy-peer-deps --no-optional --ignore-scripts
 
       - name: Build
         run: npm run build
@@ -58,6 +104,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

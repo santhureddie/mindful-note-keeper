@@ -29,12 +29,19 @@ export default defineConfig(({ mode }) => {
     build: {
       // Ensure no build failures due to large chunks
       chunkSizeWarningLimit: 1000,
+      // Optimize for GitHub Pages
+      outDir: 'dist',
+      assetsDir: 'assets',
+      sourcemap: false,
+      minify: 'terser',
       rollupOptions: {
         output: {
           manualChunks: {
             // Split code into more manageable chunks
-            vendor: ['react', 'react-dom', 'react-router-dom'],
-            ui: ['@radix-ui/react-toast', '@radix-ui/react-dialog']
+            vendor: ['react', 'react-dom'],
+            router: ['react-router-dom'],
+            ui: ['@radix-ui/react-toast', '@radix-ui/react-dialog'],
+            query: ['@tanstack/react-query']
           }
         }
       }

@@ -6,7 +6,11 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  // Use environment variable first, then fallback based on mode
   const basePath = process.env.VITE_BASE_PATH || (mode === 'production' ? '/mindful-note-keeper/' : '/');
+  
+  console.log('Build mode:', mode);
+  console.log('Base path:', basePath);
   
   return {
     server: {
@@ -38,6 +42,10 @@ export default defineConfig(({ mode }) => {
           }
         }
       }
+    },
+    define: {
+      // Ensure environment variables are available at build time
+      'import.meta.env.BASE_URL': JSON.stringify(basePath)
     }
   };
 });

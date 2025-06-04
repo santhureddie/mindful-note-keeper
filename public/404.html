@@ -7,26 +7,23 @@
       // Single Page Apps for GitHub Pages
       // MIT License
       // https://github.com/rafgraph/spa-github-pages
-      // This script takes the current URL and converts the path and query
-      // string into just a query string, and then redirects the browser
-      // to the new URL with only a query string and hash fragment
       
-      // Set this to the number of your repo name path segments
       // For repo "username/mindful-note-keeper", pathSegmentsToKeep = 1
       var pathSegmentsToKeep = 1;
 
       var l = window.location;
-      l.replace(
-        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-        l.pathname.substring(l.pathname.indexOf('/', 1) + 1) +
+      var segments = l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/');
+      var redirect = segments + '/?/' + 
+        l.pathname.slice(segments.length + 1) +
         (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-        l.hash
-      );
+        l.hash;
+      
+      console.log('404 redirect from:', l.pathname, 'to:', redirect);
+      l.replace(redirect);
     </script>
   </head>
   <body>
     <h1>Redirecting...</h1>
-    <p>If you are not redirected automatically, please <a href="/">click here</a>.</p>
+    <p>If you are not redirected automatically, please <a href="/mindful-note-keeper/">click here</a>.</p>
   </body>
 </html>

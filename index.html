@@ -4,12 +4,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>mindful-note-keeper</title>
-    <meta name="description" content="Lovable Generated Project" />
+    <title>Mindful Note Keeper</title>
+    <meta name="description" content="A mindful way to keep notes and organize your thoughts" />
     <meta name="author" content="Lovable" />
 
-    <meta property="og:title" content="mindful-note-keeper" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <meta property="og:title" content="Mindful Note Keeper" />
+    <meta property="og:description" content="A mindful way to keep notes and organize your thoughts" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
@@ -27,6 +27,7 @@
           var decoded = l.search.slice(1).split('&').map(function(s) { 
             return s.replace(/~and~/g, '&')
           }).join('?');
+          console.log('SPA redirect:', decoded);
           window.history.replaceState(null, null,
               l.pathname.slice(0, -1) + decoded + l.hash
           );
@@ -38,8 +39,6 @@
 
   <body>
     <div id="root"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>
